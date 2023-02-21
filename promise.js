@@ -1,4 +1,4 @@
-// Promise;
+c// Promise;
 // fetch("https://api.publicapis.org/entries")
 //   .then((response) => response.json())
 //   .then((response) => console.log(response));

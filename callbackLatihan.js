@@ -1,55 +1,66 @@
-/*
-<div class="row">
-        <div class="col-md-4 my-5">
-          <div class="card">
-            <img src="..." class="card-img-top"/>
-            <div class="card-body">
-              <h5 class="card-title">Avengers</h5>
-              <h6 class="card-subtitle mb-2 text-muted">2016</h6>
-              <a href="#" class="btn btn-primary">Show Details</a>
-        </div>
-    </div>
-    </div>
-</div>
-*/
+$(".search-button").on("click", function () {
+  $.ajax({
+    url:
+      "http://www.omdbapi.com/?apikey=dca61bcc&s=" + $(".input-keyword").val(),
+    success: (results) => {
+      const movies = results.Search;
+      let cards = "";
+      movies.forEach((value) => {
+        cards += showCards(value);
+      });
+      $(".movie-container").html(cards);
 
-const col = document.createElement("div");
-col.classList.add("col-md-4", "my-5");
-
-const card = document.createElement("div");
-card.classList.add("card");
-const img = document.createElement("img");
-img.classList.add("card-img-top");
-// img.setAttribute("src", "");
-const cardBody = document.createElement("div");
-cardBody.classList.add("card-body");
-const h5 = document.createElement("h5");
-h5.classList.add("card-title");
-const h6 = document.createElement("h6");
-h6.classList.add("card-subtitle", "mb-2", "text-muted");
-const a = document.createElement("a");
-a.classList.add("btn", "btn-primary");
-// a.setAttribute("href", "#");
-cardBody.append(h5, h6, a);
-card.append(img, cardBody);
-col.append(card);
-
-const container = document.querySelector(".container");
-
-$.ajax({
-  url: "http://www.omdbapi.com/?apikey=dca61bcc&s=avenger",
-  success: (results) => {
-    console.log(results);
-    const movies = results.Search;
-    movies.forEach((value) => {
-      img.setAttribute("src", `${value.Poster}`);
-      h5.innerHTML = value.Title;
-      h6.innerHTML = value.Year;
-      
-      container.append(col);
-    });
-  },
-  error: (e) => {
-    console.log(e.responseText);
-  },
+      // Ketika tombol detail di klik
+      $(".modal-detail-button").on("click", function () {
+        $.ajax({
+          url:
+            "http://www.omdbapi.com/?apikey=dca61bcc&i=" +
+            $(this).data("imdbid"),
+          success: (value) => {
+            const movieDetail = showMovieDetail(value);
+            $(".modal-body").html(movieDetail);
+          },
+          error: (e) => {
+            console.log(e.responseText);
+          },
+        });
+      });
+    },
+    error: (e) => {
+      console.log(e.responseText);
+    },
+  });
 });
+
+function showCards(value) {
+  return `<div class="col-md-4 my-5">
+  <div class="card">
+    <img src="${value.Poster}" class="card-img-top"/>
+    <div class="card-body">
+      <h5 class="card-title">${value.Title}</h5>
+      <h6 class="card-subtitle mb-2 text-muted">${value.Year}</h6>
+      <a href="#" class="btn btn-primary modal-detail-button" data-bs-toggle="modal"
+      data-bs-target="#movieDetailModal" data-imdbid="${value.imdbID}">Show Details</a>
+    </div>
+  </div>
+</div>`;
+}
+
+function showMovieDetail(value) {
+  return `<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <img src="${value.Poster}" class="img-fluid" />
+    </div>
+    <div class="col-md">
+      <ul class="list-group">
+        <li class="list-group-item"><h4>${value.Title} (${value.Year})</h4></li>
+        <li class="list-group-item"><strong>Director : </strong> ${value.Director}</li>
+        <li class="list-group-item"><strong>Actor : </strong> ${value.Actors}</li>
+        <li class="list-group-item"><strong>Writer : </strong> ${value.Writer}</li>
+        <li class="list-group-item"><strong>Plot :</strong> <br />${value.Plot}</li>
+      </ul>
+    </div>
+  </div>
+</div>`;
+}
